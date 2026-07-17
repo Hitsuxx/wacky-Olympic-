@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAUST Wacky Olympics 2026</title>
+<meta name="description" content="Wacky Olympics 2026 - KAUST student field day. Find your team.">
+<meta property="og:title" content="Wacky Olympics 2026">
+<meta property="og:description" content="KAUST student field day - find your team.">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html,body{margin:0;padding:0;background:#FAF6EF}
+  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:#FAF6EF;font-family:'Bricolage Grotesque',sans-serif;color:#0E2A47;font-weight:800;
+    font-size:1.15rem;z-index:9999;letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div id="loading">Wacky Olympics 2026</div>
+<div id="root"></div>
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  if (!window.React || !window.ReactDOM) {
+    document.getElementById('loading').textContent = 'تعذّر تحميل الموقع. تحقق من اتصال الإنترنت وأعد المحاولة.';
+    return;
+  }
+  try {
+    const {
+      useState,
+      useEffect,
+      useRef,
+      useMemo,
+      createContext,
+      useContext
+    } = React;
+
+    /* ---- inline lucide-style icons (stroke, 24 grid) ---- */
+    const Ico = paths => ({
+      size = 24,
+      style,
+      className,
+      ...rest
+    }) => React.createElement("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 2,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      style,
+      className,
+      "aria-hidden": true,
+      ...rest
+    }, paths.map((d, i) => d.c ? React.createElement("circle", {
+      key: i,
+      ...d.c
+    }) : d.r ? React.createElement("rect", {
+      key: i,
+      ...d.r
+    }) : d.l ? React.createElement("line", {
+      key: i,
+      ...d.l
+    }) : d.pl ? React.createElement("polyline", {
+      key: i,
+      points: d.pl
+    }) : React.createElement("path", {
+      key: i,
+      d
+    })));
+    const Menu = Ico([{
+      l: {
+        x1: 4,
+        x2: 20,
+        y1: 6,
+        y2: 6
+      }
+    }, {
+      l: {
+        x1: 4,
+        x2: 20,
+        y1: 12,
+        y2: 12
+      }
+    }, {
+      l: {
+        x1: 4,
+        x2: 20,
+        y1: 18,
+        y2: 18
+      }
+    }]);
+    const X = Ico([{
+      l: {
+        x1: 18,
+        x2: 6,
+        y1: 6,
+        y2: 18
+      }
+    }, {
+      l: {
+        x1: 6,
+        x2: 18,
+        y1: 6,
+        y2: 18
+      }
+    }]);
+    const Search = Ico([{
+      c: {
+        cx: 11,
+        cy: 11,
+        r: 8
+      }
+    }, {
+      l: {
+        x1: 21,
+        x2: 16.65,
+        y1: 21,
+        y2: 16.65
+      }
+    }]);
+    const Trophy = Ico(["M6 9H4.5a2.5 2.5 0 0 1 0-5H6", "M18 9h1.5a2.5 2.5 0 0 0 0-5H18", "M4 22h16", "M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22", "M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22", "M18 2H6v7a6 6 0 0 0 12 0V2Z"]);
+    const Bus = Ico(["M8 6v6", "M15 6v6", "M2 12h19.6", "M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3", "M5 18v2", "M19 18v2", {
+      c: {
+        cx: 7,
+        cy: 18,
+        r: 2
+      }
+    }, {
+      c: {
+        cx: 16,
+        cy: 18,
+        r: 2
+      }
+    }]);
+    const Clock = Ico([{
+      c: {
+        cx: 12,
+        cy: 12,
+        r: 10
+      }
+    }, {
+      pl: "12 6 12 12 16 14"
+    }]);
+    const Users = Ico(["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", {
+      c: {
+        cx: 9,
+        cy: 7,
+        r: 4
+      }
+    }, "M22 21v-2a4 4 0 0 0-3-3.87", "M16 3.13a4 4 0 0 1 0 7.75"]);
+    const Copy = Ico([{
+      r: {
+        width: 14,
+        height: 14,
+        x: 8,
+        y: 8,
+        rx: 2,
+        ry: 2
+      }
+    }, "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"]);
+    const Check = Ico([{
+      pl: "20 6 9 17 4 12"
+    }]);
+    const Globe = Ico([{
+      c: {
+        cx: 12,
+        cy: 12,
+        r: 10
+      }
+    }, "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z", {
+      l: {
+        x1: 2,
+        x2: 22,
+        y1: 12,
+        y2: 12
+      }
+    }]);
+    const Flag = Ico(["M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z", {
+      l: {
+        x1: 4,
+        x2: 4,
+        y1: 22,
+        y2: 15
+      }
+    }]);
+    const ClipboardList = Ico([{
+      r: {
+        width: 8,
+        height: 4,
+        x: 8,
+        y: 2,
+        rx: 1,
+        ry: 1
+      }
+    }, "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2", {
+      l: {
+        x1: 12,
+        x2: 12,
+        y1: 11,
+        y2: 11
+      }
+    }, {
+      l: {
+        x1: 12,
+        x2: 12,
+        y1: 16,
+        y2: 16
+      }
+    }, {
+      l: {
+        x1: 8,
+        x2: 8,
+        y1: 11,
+        y2: 11
+      }
+    }, {
+      l: {
+        x1: 8,
+        x2: 8,
+        y1: 16,
+        y2: 16
+      }
+    }]);
+    const Shirt = Ico(["M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"]);
+    const AlarmClock = Ico([{
+      c: {
+        cx: 12,
+        cy: 13,
+        r: 8
+      }
+    }, "M12 9v4l2 2", "M5 3 2 6", "M22 6l-3-3", "M6.38 18.7 4 21", "M17.64 18.67 20 21"]);
+    const UtensilsCrossed = Ico(["M16 2 7.5 10.5 5 8l3-3 8 8", "m15 15 6 6", "m5.5 15.5 3 3", "M16 16l-3.5 3.5", "M20.5 3.5 16 8l-1.5-1.5", "M11.4 12.6 3 21"]);
+    const Gamepad2 = Ico([{
+      l: {
+        x1: 6,
+        x2: 10,
+        y1: 11,
+        y2: 11
+      }
+    }, {
+      l: {
+        x1: 8,
+        x2: 8,
+        y1: 9,
+        y2: 13
+      }
+    }, {
+      l: {
+        x1: 15,
+        x2: 15.01,
+        y1: 12,
+        y2: 12
+      }
+    }, {
+      l: {
+        x1: 18,
+        x2: 18.01,
+        y1: 10,
+        y2: 10
+      }
+    }, "M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"]);
+    const ChevronDown = Ico([{
+      pl: "6 9 12 15 18 9"
+    }]);
+    const Sparkles = Ico(["M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z", "M20 3v4", "M22 5h-4", "M4 17v2", "M5 18H3"]);
+
+    /* ============================================================
+       BRAND TOKENS
+    ============================================================ */
+    const C = {
+      navy: "#0E2A47",
+      navyDeep: "#091D33",
+      teal: "#0E7C7B",
+      tealSoft: "#DDF1F0",
+      aqua: "#3FB8CF",
+      orange: "#F2803B",
+      coral: "#F26D6D",
+      pink: "#E85D8A",
+      pinkSoft: "#FCE9F0",
+      cream: "#FAF6EF",
+      creamDark: "#F1EADD",
+      ink: "#16283C",
+      inkSoft: "#4A5D72"
+    };
+    const boyTeamAccents = [C.teal, C.aqua, C.navy, C.orange];
+    const girlTeamAccents = [C.coral, C.pink, C.orange, "#B85CA6"];
+    const PROGRAM_STYLE = {
+      STEPS: {
+        bg: "#FCEFDD",
+        fg: "#9A5B12"
+      },
+      SRSI: {
+        bg: "#DFF3EC",
+        fg: "#0B6B55"
+      },
+      HSSP: {
+        bg: "#EFE6F8",
+        fg: "#6D3FA0"
+      }
+    };
+
+    /* ============================================================
+       DATA  (real student lists — paste-replaceable)
+    ============================================================ */
+    const RAW = {
+      "girls": [{
+        "n": "فريق البنات 1",
+        "m": [["Thekra Alosaimy", "HSSP", "Captain"], ["Lulu Ahmed Alsayed", "HSSP", "Vice Captain"], ["Fatimah Almalak", "SRSI", ""], ["Nuha Al Husaini", "SRSI", ""], ["Rahaf Alsarheed", "SRSI", ""], ["Lamar Arif", "SRSI", ""], ["Rital Alhrabi", "SRSI", ""], ["Toleen Ayaz", "SRSI", ""], ["Hams Sultan Almazmumi", "STEPS", ""], ["Rayhanah Ali Albrahim", "STEPS", ""], ["Mis Dhiaa Alzawad", "STEPS", ""], ["Rodina Rubayyi Almalki", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 2",
+        "m": [["Alina Omar Khan", "HSSP", "Captain"], ["Amatullah Raji", "SRSI", "Vice Captain"], ["Sukinah Almubarak", "SRSI", ""], ["Taliah Alzain", "SRSI", ""], ["Dana Alshurafa", "SRSI", ""], ["Juri Basudan", "SRSI", ""], ["Reema Alshehri", "SRSI", ""], ["Sara Walid Bin Jabr", "STEPS", ""], ["Shahad Adnan Alharbi", "STEPS", ""], ["Shahad Mousa Albahrani", "STEPS", ""], ["Wajd Ehab Hasoubah", "STEPS", ""], ["Jumanah Adel Alghamdi", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 3",
+        "m": [["Ayah Bulkhi", "HSSP", "Captain"], ["Ajwan Alahmadi", "SRSI", "Vice Captain"], ["Lana Abdullah Abutaleb", "SRSI", ""], ["Norah Albaiz", "SRSI", ""], ["Joann Alhebshi", "SRSI", ""], ["Miryam Turkistani", "SRSI", ""], ["Shahad AlAbbad", "SRSI", ""], ["Noor Talal Bokhamsin", "STEPS", ""], ["Maryam Mohammed Jastaniah", "STEPS", ""], ["Sali Mana Alruwaili", "STEPS", ""], ["Eylan Ali Alqazlan", "STEPS", ""], ["Mariya Zaher Almasari", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 4",
+        "m": [["Noor Aljadher", "HSSP", "Captain"], ["Lulia Yosif Alqahtani", "SRSI", "Vice Captain"], ["Maram Albarrak", "SRSI", ""], ["Maria Mohamed Alnasrallah", "SRSI", ""], ["Noor Basfar", "SRSI", ""], ["Reem Abualnaja", "SRSI", ""], ["Yara Abdulmajeed Ababtain", "SRSI", ""], ["Basmah Bader Alkhudair", "STEPS", ""], ["Ghada Rayan Alturki", "STEPS", ""], ["Amnah Jalal Alhomoud", "STEPS", ""], ["Danah Ahmed Alrehaili", "STEPS", ""], ["Durar Khalid Almalki", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 5",
+        "m": [["Hala Alamoudi", "HSSP", "Captain"], ["Aljoory Altaha", "SRSI", "Vice Captain"], ["Fatima Hussain almogren", "SRSI", ""], ["Mariam Alattas", "SRSI", ""], ["Jooud Sindi", "SRSI", ""], ["Roaa Mulla", "SRSI", ""], ["Sara Almutairi", "SRSI", ""], ["Raghad Almulhim", "STEPS", ""], ["Cady Khalid Alhayaf", "STEPS", ""], ["Nassab Emad Alahmadi", "STEPS", ""], ["Dina Fahad Aljalajel", "STEPS", ""], ["Rama Ibrahim Bukhari", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 6",
+        "m": [["Danya Saeed Aldaalouj", "HSSP", "Captain"], ["Fatimah Almarhoun", "SRSI", "Vice Captain"], ["Mariah Altarazi", "SRSI", ""], ["Raseel Masmali", "SRSI", ""], ["Aljawharah Alamer", "SRSI", ""], ["Fatimah Almusalami", "SRSI", ""], ["Yara Alghamdi", "SRSI", ""], ["Jana Abdullah Alzahrani", "STEPS", ""], ["Taleen Ashraf Samarkandi", "STEPS", ""], ["Farah Alqhtani", "STEPS", ""], ["Layan Fahad Aboalnaja", "STEPS", ""], ["Tala Tulbah", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 7",
+        "m": [["Rateel Alsharif", "HSSP", "Captain"], ["Adhwa Kadasah", "SRSI", "Vice Captain"], ["Fatima Damlakhan", "SRSI", ""], ["Sarah Aboulsamh", "SRSI", ""], ["Aiyshah Albakri", "SRSI", ""], ["Razan Bakhsh", "SRSI", ""], ["Fatemah Alghamdi", "SRSI", ""], ["Dana Abdullah Albur", "STEPS", ""], ["Lora Abdullah Albutti", "STEPS", ""], ["Rimas Nasser Andijani", "STEPS", ""], ["Ghina Adnan Alsharqi", "STEPS", ""], ["Rewaa Nasser Albarakati", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 8",
+        "m": [["Shahd Alqahtani", "HSSP", "Captain"], ["Yasmeen Rami Aljishi", "SRSI", "Vice Captain"], ["Noor Almatouq", "SRSI", ""], ["Roaa Almarzooq", "SRSI", ""], ["Aleen Alhebaishi", "SRSI", ""], ["Talah Almarwani", "SRSI", ""], ["Mayar Alhaj Ibrahim", "SRSI", ""], ["Salma Salah Almutawah", "STEPS", ""], ["Jana Ahmad Alotay", "STEPS", ""], ["Jood Mansour Algthami", "STEPS", ""], ["Rabiah Rubayyi Almalki", "STEPS", ""]]
+      }, {
+        "n": "فريق البنات 9",
+        "m": [["Noor Shafi", "HSSP", "Captain"], ["Reema Abdullah Alaloula", "SRSI", "Vice Captain"], ["Fatemah alzahrani", "SRSI", ""], ["Maya Aljabri", "SRSI", ""], ["Danah Alsaad", "SRSI", ""], ["Rimas Abualnaja", "SRSI", ""], ["Tala Rayyan Aloufi", "STEPS", ""], ["Lamar Sultan Alhazmi", "STEPS", ""], ["Zainab Ahmad Alshowaiheen", "STEPS", ""], ["Deem Abdulrahman Albahouth", "STEPS", ""], ["Jana Maitham Aldawood", "STEPS", ""]]
+      }],
+      "boys": [{
+        "n": "فريق العيال 1",
+        "m": [["Mohammed Manduh Allam", "HSSP", "Captain"], ["Mohammed Abulola", "HSSP", "Vice Captain"], ["Emran Lodi", "SRSI", ""], ["Tameem Khan", "SRSI", ""], ["Yousef Basuni", "SRSI", ""], ["Adam Aljubran", "SRSI", ""], ["Hisham Alshehri", "SRSI", ""], ["Kamel Alsulimani", "SRSI", ""], ["Abdulaziz Almogren", "STEPS", ""], ["Khaled Mohammed Alazzaz", "STEPS", ""], ["Mohmamad Adel Alsheikh", "STEPS", ""], ["Ali Hassan Alhussain", "STEPS", ""], ["Maher Ahmed Althagafi", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 2",
+        "m": [["Faisal Husam Alsharani", "HSSP", "Captain"], ["Ahmed Alshaikh", "SRSI", "Vice Captain"], ["Fares Alnemer", "SRSI", ""], ["Viktor Ukhov", "SRSI", ""], ["Harish Sadhasivam", "SRSI", ""], ["Mohammad Bashkail", "SRSI", ""], ["Wael Masoud", "SRSI", ""], ["Nawaf Mahmood Albraheem", "STEPS", ""], ["Belal Nafea Alhejaili", "STEPS", ""], ["Moayed Mohsen Mulla", "STEPS", ""], ["Rayyan Ibrahim Alhassar", "STEPS", ""], ["Ameer Rafat Almunian", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 3",
+        "m": [["Samer Bahidarah", "HSSP", "Captain"], ["Yousef Abdullah Malki", "HSSP", "Vice Captain"], ["Ammar Alotaibi", "SRSI", ""], ["Mohammed Yousef Aldrees", "SRSI", ""], ["Murad Albakri", "SRSI", ""], ["Ali Alhussain", "SRSI", ""], ["Elyas Abu Alola", "SRSI", ""], ["Mohammed Mustafa Alalmuhsin", "STEPS", ""], ["Muhammad Waell Alakkas", "STEPS", ""], ["Emran Mohammed Bindakhil", "STEPS", ""], ["Khalid Kamal AlJunaidi", "STEPS", ""], ["Mohammed Ali Alomran", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 4",
+        "m": [["Faisal Fitaihi", "HSSP", "Captain"], ["Musaad Hamed Alrashidi", "HSSP", "Vice Captain"], ["Nader Masmali", "SRSI", ""], ["Abdullah Baessa", "SRSI", ""], ["Mohammed albassam", "SRSI", ""], ["Yousef Tatwani", "SRSI", ""], ["Abdulelah Mandorah", "SRSI", ""], ["Ali Ahmed Alhayek", "STEPS", ""], ["Ali Khalid Aldhamen", "STEPS", ""], ["Mohammad Sultan Alosaimy", "STEPS", ""], ["Moaath Faisal Alalki", "STEPS", ""], ["Mohammed Ali Aljubran", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 5",
+        "m": [["Ahmad Jarraya", "HSSP", "Captain"], ["Mohammed Adel Alkeaid", "HSSP", "Vice Captain"], ["Ahmad Almsarri", "SRSI", ""], ["Ghassan Anas", "SRSI", ""], ["Faisal Alwasel", "SRSI", ""], ["Ghassan Alshayeb", "SRSI", ""], ["Omar Madini", "SRSI", ""], ["Saud Abdulhameid Alabdullatif", "STEPS", ""], ["Abdulaziz Abdulrahman Alshouir", "STEPS", ""], ["Hisham Meshal Alsamhan", "STEPS", ""], ["Mohammed Wajdi Almugbel", "STEPS", ""], ["Abdulaziz Salim Alrejaie", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 6",
+        "m": [["Abdullah Alsullhem", "HSSP", "Captain"], ["Abdulaziz Ghassen Alghabban", "HSSP", "Vice Captain"], ["Aseel Bawayan", "SRSI", ""], ["Fahad Alhajji", "SRSI", ""], ["Sriram Dasari", "SRSI", ""], ["Abdulrahman Zamim", "SRSI", ""], ["Amin Sejiny", "SRSI", ""], ["Hadi Mohammed Alqatari", "STEPS", ""], ["Haidar Fahmi Aljishi", "STEPS", ""], ["Yasir Mohammed Habibullah", "STEPS", ""], ["Azzam Abdullah Saeed Alghamdi", "STEPS", ""], ["Hussain Almuslem", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 7",
+        "m": [["Abdulrahman Sultan Alosaimy", "HSSP", "Captain"], ["Abdulrahman Ahmed Alotaibi", "HSSP", "Vice Captain"], ["Meshari Alzahrani", "SRSI", ""], ["Mushari Almarzoug", "SRSI", ""], ["Sultan Alfuraydi", "SRSI", ""], ["Talal Labban", "SRSI", ""], ["Anan Alsaegh", "SRSI", ""], ["Mohammed Abdulkhaliq Albattat", "STEPS", ""], ["Mohammed Swaied Alzahrani", "STEPS", ""], ["Ghazi Abdullah Almasri", "STEPS", ""], ["Khalid Abdullah Alzahid", "STEPS", ""], ["Maan Mohmamad Alsulaimani", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 8",
+        "m": [["Ward Aldukhayil", "HSSP", "Captain"], ["Saleh Binhimd", "HSSP", "Vice Captain"], ["Naser Aljalfan", "SRSI", ""], ["Taha Kidwai", "SRSI", ""], ["Abdulaziz Al Saud", "SRSI", ""], ["Ahmed Almulla", "SRSI", ""], ["Nawaf Alaboud", "SRSI", ""], ["Sultan Bin Zunaifer Alajmi", "STEPS", ""], ["Bedir Cuneyt Saricimen", "STEPS", ""], ["Majed Bander Alamir", "STEPS", ""], ["Muteb Mohammed Alshahrani", "STEPS", ""], ["Salman Abdullah Alkhaldi", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 9",
+        "m": [["Abdulwahab Abalkhail", "HSSP", "Captain"], ["Abdullah Alomari", "SRSI", "Vice Captain"], ["Mohammed Alfayyadh", "SRSI", ""], ["Muhammad Rehman", "SRSI", ""], ["Faisal Alrubaian", "SRSI", ""], ["Hashim Alahmadi", "SRSI", ""], ["Alhaytham Mansour Alzahr", "STEPS", ""], ["Faisal Majed Alsalamah", "STEPS", ""], ["Mohammad Ali Alquaizany", "STEPS", ""], ["Fares Yassin Almatawah", "STEPS", ""], ["Mohammad Fahad Gadi", "STEPS", ""], ["Yazan Ahmad Alshanqiti", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 10",
+        "m": [["Talal Samkari", "HSSP", "Captain"], ["Mohammed Algahtani", "SRSI", "Vice Captain"], ["Abdullah Alodaibi", "SRSI", ""], ["Abdullah Bader Alamoudi", "SRSI", ""], ["Almonther Alghamdi", "SRSI", ""], ["Sultan Albalawi", "SRSI", ""], ["Mohammed Yousef Alabdulslam", "STEPS", ""], ["Omar Abdulrahman Alghmadi", "STEPS", ""], ["Yousef Basim Towairit", "STEPS", ""], ["Maen Hatim Almaghrabi", "STEPS", ""], ["Mishal Mohammad Alharbi", "STEPS", ""], ["Yazn Hani Zakour", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 11",
+        "m": [["Abdulraham Alaa Almalki", "HSSP", "Captain"], ["Abdullah Reda", "SRSI", "Vice Captain"], ["Ahmed Alshalabi", "SRSI", ""], ["Hadi Alzaher", "SRSI", ""], ["Nawaf Abu Aqil", "SRSI", ""], ["Faisal Aljabri", "SRSI", ""], ["Abdulaziz Saad Alotaibi", "STEPS", ""], ["Rayan Malek Alzaki", "STEPS", ""], ["Saif Eyad Alawami", "STEPS", ""], ["Abdullah Mohammed Alsuhaib", "STEPS", ""], ["Habib Talal Bokhamsin", "STEPS", ""], ["Hashim Ibraheem Basuni", "STEPS", ""]]
+      }, {
+        "n": "فريق العيال 12",
+        "m": [["Adeeb Alkaki", "HSSP", "Captain"], ["Iliyas Alali", "SRSI", "Vice Captain"], ["Muhammad Amin", "SRSI", ""], ["Mohammad Al Taleb", "SRSI", ""], ["Mohammed Albalawi", "SRSI", ""], ["Mohammed Alnakhli", "SRSI", ""], ["Abdullah Taher Alnazer", "STEPS", ""], ["Hamza Rami Allinjawi", "STEPS", ""], ["Saud Abdullah Alsaadan", "STEPS", ""], ["Mohammad Alruwaili", "STEPS", ""], ["Mohammed Yousef Almutairi", "STEPS", ""], ["Osamah Mohammad Alhilaly", "STEPS", ""]]
+      }]
+    };
+    const toTeams = (arr, accents) => arr.map((t, i) => ({
+      id: i + 1,
+      color: accents[i % accents.length],
+      students: t.m.map(([name, program, role]) => ({
+        name,
+        program,
+        role
+      }))
+    }));
+    const boysTeams = toTeams(RAW.boys, boyTeamAccents);
+    const girlsTeams = toTeams(RAW.girls, girlTeamAccents);
+
+    /* ============================================================
+       I18N
+    ============================================================ */
+    const T = {
+      ar: {
+        dir: "rtl",
+        langBtn: "EN",
+        nav: {
+          home: "الرئيسية",
+          info: "معلومات الفعالية",
+          finder: "ابحث عن فريقك",
+          schedule: "الجدول",
+          transport: "المواصلات"
+        },
+        menuOpen: "فتح القائمة",
+        menuClose: "إغلاق القائمة",
+        heroBadge: "فعالية طلابية · STEPS · SRSI · HSSP",
+        heroSub1: "يوم رياضي ترفيهي جماعي لطلاب",
+        heroSub2: "ألعاب خفيفة، منافسات جماعية، حماس ووقت ممتع!",
+        dinnerChip: "العشاء بعد انتهاء الفعالية",
+        busChipA: "الحافلات من مساكن الطلاب",
+        ctaFind: "ابحث عن فريقك",
+        ctaInfo: "تفاصيل الفعالية",
+        infoTitle: "معلومات الفعالية",
+        hl: [{
+          title: "الألعاب",
+          body: "سباقات وألعاب جماعية خفيفة وممتعة"
+        }, {
+          title: "النقاط",
+          body: "تكسب الفرق نقاطًا حسب ترتيبها في كل لعبة"
+        }, {
+          title: "البرامج المشاركة",
+          body: "STEPS — SRSI — HSSP",
+          ltr: true
+        }, {
+          title: "العشاء",
+          body: "عشاء بعد انتهاء الفعالية"
+        }],
+        finderTitle: "ابحث عن فريقك",
+        finderSub: "اكتب اسمك لمعرفة الفريق المخصص لك",
+        tabsLabel: "اختيار القسم",
+        tabBoys: "فرق الطلاب",
+        tabGirls: "فرق الطالبات",
+        searchLabel: "بحث بالاسم",
+        searchBoys: "اكتب اسم الطالب بالإنجليزي...",
+        searchGirls: "اكتبي اسم الطالبة بالإنجليزي...",
+        teamSelLabel: "اختيار فريق",
+        allTeams: "كل الفرق",
+        allPrograms: "الكل",
+        teamWord: "الفريق",
+        sumTeams: "الفرق الظاهرة",
+        sumBoys: "الطلاب الظاهرون",
+        sumGirls: "الطالبات الظاهرات",
+        boysUnit: "طالبًا",
+        girlsUnit: "طالبة",
+        captain: "كابتن",
+        vice: "نائب",
+        captainFull: "كابتن",
+        viceFull: "نائب الكابتن",
+        copyBtn: "نسخ قائمة الفريق",
+        copied: "تم النسخ",
+        noResults: "لا توجد نتائج مطابقة",
+        noResultsHint: "جرّب كتابة جزء من الاسم بالإنجليزي، أو غيّر فلتر البرنامج والفريق",
+        scheduleTitle: "جدول اليوم",
+        tl: ["وصول الحافلات إلى مساكن الطلاب", "بداية الفعالية والألعاب", "نهاية الألعاب", "العشاء"],
+        after: "بعد",
+        impTitle: "معلومات مهمة",
+        checks: ["الحضور في الوقت المحدد", "ارتداء ملابس وأحذية رياضية مناسبة", "الالتزام باللبس المحتشم", "الالتزام بتعليمات المشرفين", "التأكد من معرفة الفريق قبل الوصول"],
+        busCheckA: "الحافلات ستصل إلى مساكن الطلاب الساعة",
+        footerLine: "ننتظركم ليوم مليء بالحماس والتحديات!",
+        copyHeadBoys: "فرق الطلاب",
+        copyHeadGirls: "فرق الطالبات"
+      },
+      en: {
+        dir: "ltr",
+        langBtn: "عربي",
+        nav: {
+          home: "Home",
+          info: "Event Info",
+          finder: "Find Your Team",
+          schedule: "Schedule",
+          transport: "Transport"
+        },
+        menuOpen: "Open menu",
+        menuClose: "Close menu",
+        heroBadge: "Student Event · STEPS · SRSI · HSSP",
+        heroSub1: "A fun, team-based field day for",
+        heroSub2: "Light games, team challenges, and a great time together!",
+        dinnerChip: "Dinner after the event",
+        busChipA: "Buses from student housing at",
+        ctaFind: "Find your team",
+        ctaInfo: "Event details",
+        infoTitle: "Event Info",
+        hl: [{
+          title: "Games",
+          body: "Light, fun team races and challenges"
+        }, {
+          title: "Scoring",
+          body: "Teams earn points based on placement in each game"
+        }, {
+          title: "Programs",
+          body: "STEPS — SRSI — HSSP",
+          ltr: true
+        }, {
+          title: "Dinner",
+          body: "Dinner served after the event"
+        }],
+        finderTitle: "Find Your Team",
+        finderSub: "Type your name to see your assigned team",
+        tabsLabel: "Choose section",
+        tabBoys: "Boys' Teams",
+        tabGirls: "Girls' Teams",
+        searchLabel: "Search by name",
+        searchBoys: "Type the student's name...",
+        searchGirls: "Type the student's name...",
+        teamSelLabel: "Select team",
+        allTeams: "All teams",
+        allPrograms: "All",
+        teamWord: "Team",
+        sumTeams: "Teams shown",
+        sumBoys: "Students shown",
+        sumGirls: "Students shown",
+        boysUnit: "students",
+        girlsUnit: "students",
+        captain: "Captain",
+        vice: "Vice",
+        captainFull: "Captain",
+        viceFull: "Vice Captain",
+        copyBtn: "Copy team list",
+        copied: "Copied",
+        noResults: "No matching results",
+        noResultsHint: "Try part of the name, or change the program and team filters",
+        scheduleTitle: "Day Schedule",
+        tl: ["Buses arrive at student housing", "Event and games begin", "Games end", "Dinner"],
+        after: "After",
+        impTitle: "Important Information",
+        checks: ["Arrive on time", "Wear suitable sportswear and athletic shoes", "Modest dress is required", "Follow the supervisors' instructions", "Know your team before you arrive"],
+        busCheckA: "Buses will arrive at student housing at",
+        footerLine: "See you for a day full of energy and challenges!",
+        copyHeadBoys: "Boys' Teams",
+        copyHeadGirls: "Girls' Teams"
+      }
+    };
+    const LangCtx = createContext({
+      lang: "ar",
+      t: T.ar,
+      setLang: () => {}
+    });
+    const useLang = () => useContext(LangCtx);
+
+    /* ============================================================
+       GLOBAL STYLES (fonts + keyframes)
+    ============================================================ */
+    const GlobalStyle = () => /*#__PURE__*/React.createElement("style", null, `
+        @import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap');
+        html { scroll-behavior: smooth; }
+        body { margin: 0; }
+        .font-ar { font-family: 'Alexandria', sans-serif; }
+        .font-en { font-family: 'Bricolage Grotesque', 'Alexandria', sans-serif; }
+        .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
+        .reveal.in { opacity: 1; transform: none; }
+        @keyframes drift {
+          0% { transform: translateY(-8vh) rotate(0deg); opacity: 0; }
+          12% { opacity: .8; }
+          100% { transform: translateY(105vh) rotate(300deg); opacity: 0; }
+        }
+        .confetto { position: absolute; top: 0; border-radius: 2px; animation: drift linear infinite; pointer-events: none; }
+        mark { background: #FBD877; border-radius: 4px; padding: 0 3px; }
+        @media (prefers-reduced-motion: reduce) {
+          .confetto { animation: none !important; }
+          .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+          html { scroll-behavior: auto; }
+        }
+        ::selection { background: ${C.teal}; color: #fff; }
+      `);
+
+    /* ============================================================
+       REVEAL ON SCROLL
+    ============================================================ */
+    function Reveal({
+      children,
+      className = "",
+      delay = 0
+    }) {
+      const ref = useRef(null);
+      const [inView, setInView] = useState(false);
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const obs = new IntersectionObserver(([e]) => e.isIntersecting && (setInView(true), obs.disconnect()), {
+          threshold: 0.12
+        });
+        obs.observe(el);
+        return () => obs.disconnect();
+      }, []);
+      return /*#__PURE__*/React.createElement("div", {
+        ref: ref,
+        className: `reveal ${inView ? "in" : ""} ${className}`,
+        style: {
+          transitionDelay: `${delay}ms`
+        }
+      }, children);
+    }
+
+    /* ============================================================
+       DECOR
+    ============================================================ */
+    const TrackCurves = ({
+      flip = false,
+      color = C.teal,
+      opacity = 0.14
+    }) => /*#__PURE__*/React.createElement("svg", {
+      viewBox: "0 0 400 400",
+      className: `absolute pointer-events-none ${flip ? "-scale-x-100" : ""}`,
+      style: {
+        width: "min(52vw,420px)",
+        insetInlineStart: flip ? "auto" : "-8%",
+        insetInlineEnd: flip ? "-8%" : "auto",
+        top: "-6%",
+        opacity
+      },
+      "aria-hidden": "true"
+    }, [0, 26, 52, 78].map((o, i) => /*#__PURE__*/React.createElement("path", {
+      key: i,
+      d: `M ${-40 + o} 420 A ${300 - o} ${300 - o} 0 0 1 ${420} ${60 + o}`,
+      fill: "none",
+      stroke: color,
+      strokeWidth: "10",
+      strokeLinecap: "round"
+    })));
+    const Confetti = ({
+      count = 16
+    }) => {
+      const pieces = useMemo(() => Array.from({
+        length: count
+      }, (_, i) => ({
+        left: `${i * 61 % 100}%`,
+        color: [C.teal, C.orange, C.pink, C.aqua, C.navy][i % 5],
+        dur: 7 + i % 5 * 1.7,
+        delay: i * 0.9 % 8,
+        w: 6 + i % 3 * 3
+      })), [count]);
+      return /*#__PURE__*/React.createElement("div", {
+        className: "absolute inset-0 overflow-hidden pointer-events-none",
+        "aria-hidden": "true"
+      }, pieces.map((p, i) => /*#__PURE__*/React.createElement("span", {
+        key: i,
+        className: "confetto",
+        style: {
+          left: p.left,
+          width: p.w,
+          height: p.w * 1.7,
+          background: p.color,
+          animationDuration: `${p.dur}s`,
+          animationDelay: `${p.delay}s`
+        }
+      })));
+    };
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    function LangToggle({
+      compact = false
+    }) {
+      const {
+        lang,
+        t,
+        setLang
+      } = useLang();
+      return /*#__PURE__*/React.createElement("button", {
+        onClick: () => setLang(lang === "ar" ? "en" : "ar"),
+        className: `inline-flex items-center gap-1.5 rounded-full font-bold transition-colors ${compact ? "px-3 py-1.5 text-xs" : "px-3.5 py-2 text-sm"}`,
+        style: {
+          background: C.tealSoft,
+          color: C.teal
+        },
+        "aria-label": lang === "ar" ? "Switch to English" : "التبديل إلى العربية"
+      }, /*#__PURE__*/React.createElement(Globe, {
+        size: compact ? 14 : 16
+      }), /*#__PURE__*/React.createElement("span", {
+        className: lang === "ar" ? "font-en" : "font-ar"
+      }, t.langBtn));
+    }
+    function Nav() {
+      const {
+        t
+      } = useLang();
+      const [open, setOpen] = useState(false);
+      const items = [{
+        id: "home",
+        label: t.nav.home
+      }, {
+        id: "info",
+        label: t.nav.info
+      }, {
+        id: "finder",
+        label: t.nav.finder
+      }, {
+        id: "schedule",
+        label: t.nav.schedule
+      }, {
+        id: "transport",
+        label: t.nav.transport
+      }];
+      const go = id => {
+        setOpen(false);
+        document.getElementById(id)?.scrollIntoView({
+          behavior: "smooth"
+        });
+      };
+      return /*#__PURE__*/React.createElement("header", {
+        className: "sticky top-0 z-50",
+        style: {
+          background: "rgba(250,246,239,.92)",
+          backdropFilter: "blur(10px)",
+          borderBottom: `1px solid ${C.creamDark}`
+        }
+      }, /*#__PURE__*/React.createElement("nav", {
+        className: "max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-14 sm:h-16"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2.5 sm:gap-3"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-center rounded-lg font-en font-bold text-xs sm:text-sm px-2.5 py-1.5",
+        style: {
+          background: C.navy,
+          color: "#fff",
+          letterSpacing: ".08em"
+        },
+        title: "KAUST logo placeholder"
+      }, "KAUST"), /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en font-bold text-sm sm:text-base",
+        style: {
+          color: C.navy
+        }
+      }, "Wacky Olympics ", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: C.orange
+        }
+      }, "2026"))), /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2"
+      }, /*#__PURE__*/React.createElement("ul", {
+        className: "hidden md:flex items-center gap-1 text-sm font-medium"
+      }, items.map(n => /*#__PURE__*/React.createElement("li", {
+        key: n.id
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => go(n.id),
+        className: "px-3 py-2 rounded-full transition-colors",
+        style: {
+          color: C.inkSoft
+        },
+        onMouseEnter: e => {
+          e.currentTarget.style.background = C.creamDark;
+          e.currentTarget.style.color = C.navy;
+        },
+        onMouseLeave: e => {
+          e.currentTarget.style.background = "transparent";
+          e.currentTarget.style.color = C.inkSoft;
+        }
+      }, n.label)))), /*#__PURE__*/React.createElement("div", {
+        className: "hidden md:block"
+      }, /*#__PURE__*/React.createElement(LangToggle, null)), /*#__PURE__*/React.createElement("div", {
+        className: "md:hidden"
+      }, /*#__PURE__*/React.createElement(LangToggle, {
+        compact: true
+      })), /*#__PURE__*/React.createElement("button", {
+        className: "md:hidden p-2 rounded-lg",
+        style: {
+          color: C.navy
+        },
+        "aria-label": open ? t.menuClose : t.menuOpen,
+        onClick: () => setOpen(!open)
+      }, open ? /*#__PURE__*/React.createElement(X, {
+        size: 24
+      }) : /*#__PURE__*/React.createElement(Menu, {
+        size: 24
+      })))), open && /*#__PURE__*/React.createElement("div", {
+        className: "md:hidden px-4 pb-4",
+        style: {
+          background: C.cream
+        }
+      }, items.map(n => /*#__PURE__*/React.createElement("button", {
+        key: n.id,
+        onClick: () => go(n.id),
+        className: "block w-full text-start px-4 py-3 rounded-xl font-medium text-base",
+        style: {
+          color: C.navy
+        }
+      }, n.label))));
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    function Hero() {
+      const {
+        t
+      } = useLang();
+      const go = id => document.getElementById(id)?.scrollIntoView({
+        behavior: "smooth"
+      });
+      return /*#__PURE__*/React.createElement("section", {
+        id: "home",
+        className: "relative overflow-hidden",
+        style: {
+          background: C.cream
+        }
+      }, /*#__PURE__*/React.createElement(TrackCurves, {
+        color: C.teal
+      }), /*#__PURE__*/React.createElement(TrackCurves, {
+        flip: true,
+        color: C.coral,
+        opacity: 0.1
+      }), /*#__PURE__*/React.createElement(Confetti, null), /*#__PURE__*/React.createElement("div", {
+        className: "relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-12 sm:pb-16 text-center"
+      }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("div", {
+        className: "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold",
+        style: {
+          background: C.tealSoft,
+          color: C.teal
+        }
+      }, /*#__PURE__*/React.createElement(Sparkles, {
+        size: 15
+      }), " ", t.heroBadge), /*#__PURE__*/React.createElement("h1", {
+        dir: "ltr",
+        className: "font-en font-extrabold leading-none mt-5",
+        style: {
+          color: C.navy,
+          fontSize: "clamp(2.6rem, 9vw, 5.4rem)",
+          letterSpacing: "-0.02em"
+        }
+      }, "WACKY OLYMPICS", /*#__PURE__*/React.createElement("span", {
+        className: "block mt-1",
+        style: {
+          color: C.orange,
+          fontSize: "clamp(1.7rem, 5.5vw, 3rem)"
+        }
+      }, "2026")), /*#__PURE__*/React.createElement("p", {
+        className: "font-semibold mt-5 text-base sm:text-xl",
+        style: {
+          color: C.ink
+        }
+      }, t.heroSub1, " ", /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en"
+      }, "STEPS · SRSI · HSSP")), /*#__PURE__*/React.createElement("p", {
+        className: "mt-2 text-sm sm:text-base",
+        style: {
+          color: C.inkSoft
+        }
+      }, t.heroSub2)), /*#__PURE__*/React.createElement(Reveal, {
+        delay: 120
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-wrap justify-center gap-2.5 sm:gap-3 mt-7"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm sm:text-base font-semibold",
+        style: {
+          background: "#fff",
+          color: C.navy,
+          boxShadow: "0 2px 10px rgba(14,42,71,.08)"
+        }
+      }, /*#__PURE__*/React.createElement(Clock, {
+        size: 18,
+        style: {
+          color: C.teal
+        }
+      }), /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en font-bold"
+      }, "5:00 PM – 8:00 PM")), /*#__PURE__*/React.createElement("span", {
+        className: "inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm sm:text-base font-semibold",
+        style: {
+          background: "#fff",
+          color: C.navy,
+          boxShadow: "0 2px 10px rgba(14,42,71,.08)"
+        }
+      }, /*#__PURE__*/React.createElement(UtensilsCrossed, {
+        size: 18,
+        style: {
+          color: C.orange
+        }
+      }), " ", t.dinnerChip), /*#__PURE__*/React.createElement("span", {
+        className: "inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm sm:text-base font-semibold",
+        style: {
+          background: "#fff",
+          color: C.navy,
+          boxShadow: "0 2px 10px rgba(14,42,71,.08)"
+        }
+      }, /*#__PURE__*/React.createElement(Bus, {
+        size: 18,
+        style: {
+          color: C.coral
+        }
+      }), t.busChipA, " ", /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en font-bold"
+      }, "3:00 PM")))), /*#__PURE__*/React.createElement(Reveal, {
+        delay: 200
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-wrap justify-center gap-3 mt-7"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: () => go("finder"),
+        className: "inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold text-base sm:text-lg transition-transform hover:-translate-y-0.5",
+        style: {
+          background: C.navy,
+          color: "#fff",
+          boxShadow: "0 6px 18px rgba(14,42,71,.3)"
+        }
+      }, /*#__PURE__*/React.createElement(Search, {
+        size: 19
+      }), " ", t.ctaFind), /*#__PURE__*/React.createElement("button", {
+        onClick: () => go("info"),
+        className: "inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-bold text-base sm:text-lg transition-transform hover:-translate-y-0.5",
+        style: {
+          background: "#fff",
+          color: C.navy,
+          border: `2px solid ${C.navy}`
+        }
+      }, t.ctaInfo)))));
+    }
+
+    /* ============================================================
+       HIGHLIGHTS
+    ============================================================ */
+    const HL_META = [{
+      icon: Gamepad2,
+      color: C.teal,
+      bg: C.tealSoft
+    }, {
+      icon: Trophy,
+      color: C.orange,
+      bg: "#FDEBD9"
+    }, {
+      icon: Users,
+      color: "#6D3FA0",
+      bg: "#EFE6F8"
+    }, {
+      icon: UtensilsCrossed,
+      color: C.coral,
+      bg: C.pinkSoft
+    }];
+    function Highlights() {
+      const {
+        t
+      } = useLang();
+      return /*#__PURE__*/React.createElement("section", {
+        id: "info",
+        className: "relative py-14 sm:py-20",
+        style: {
+          background: "#fff"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "max-w-6xl mx-auto px-4 sm:px-6"
+      }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("h2", {
+        className: "font-extrabold text-center text-2xl sm:text-4xl",
+        style: {
+          color: C.navy
+        }
+      }, t.infoTitle), /*#__PURE__*/React.createElement("div", {
+        className: "w-14 h-1.5 rounded-full mx-auto mt-3",
+        style: {
+          background: C.orange
+        }
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mt-9"
+      }, t.hl.map((h, i) => {
+        const M = HL_META[i];
+        return /*#__PURE__*/React.createElement(Reveal, {
+          key: h.title,
+          delay: i * 80
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "rounded-3xl p-5 sm:p-6 h-full transition-transform hover:-translate-y-1",
+          style: {
+            background: C.cream
+          }
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "w-11 h-11 rounded-2xl flex items-center justify-center mb-4",
+          style: {
+            background: M.bg,
+            color: M.color
+          }
+        }, /*#__PURE__*/React.createElement(M.icon, {
+          size: 22
+        })), /*#__PURE__*/React.createElement("h3", {
+          className: "font-bold text-lg sm:text-xl",
+          style: {
+            color: C.navy
+          }
+        }, h.title), /*#__PURE__*/React.createElement("p", {
+          className: `mt-1.5 text-sm sm:text-base ${h.ltr ? "font-en font-semibold" : ""}`,
+          dir: h.ltr ? "ltr" : undefined,
+          style: {
+            color: C.inkSoft,
+            textAlign: "start"
+          }
+        }, h.body)));
+      }))));
+    }
+
+    /* ============================================================
+       TEAM FINDER
+    ============================================================ */
+    function highlight(text, q) {
+      if (!q) return text;
+      const i = text.toLowerCase().indexOf(q.toLowerCase());
+      if (i === -1) return text;
+      return /*#__PURE__*/React.createElement(React.Fragment, null, text.slice(0, i), /*#__PURE__*/React.createElement("mark", null, text.slice(i, i + q.length)), text.slice(i + q.length));
+    }
+    function TeamCard({
+      team,
+      tab,
+      query
+    }) {
+      const {
+        t
+      } = useLang();
+      const [copied, setCopied] = useState(false);
+      const counts = useMemo(() => {
+        const c = {
+          STEPS: 0,
+          SRSI: 0,
+          HSSP: 0
+        };
+        team.students.forEach(s => c[s.program]++);
+        return c;
+      }, [team]);
+      const teamName = `${t.teamWord} ${team.id}`;
+      const unit = tab === "boys" ? t.boysUnit : t.girlsUnit;
+      const copyTeam = () => {
+        const head = tab === "boys" ? t.copyHeadBoys : t.copyHeadGirls;
+        const txt = `${head} — ${teamName} (${team.students.length})\n` + team.students.map(s => `• ${s.name} — ${s.program}${s.role ? " — " + (s.role === "Captain" ? t.captainFull : t.viceFull) : ""}`).join("\n");
+        const done = () => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1800);
+        };
+        const fallback = () => {
+          const ta = document.createElement("textarea");
+          ta.value = txt;
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand("copy");
+            done();
+          } catch {}
+          document.body.removeChild(ta);
+        };
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(txt).then(done).catch(fallback);else fallback();
+      };
+      return /*#__PURE__*/React.createElement("article", {
+        className: "rounded-3xl overflow-hidden flex flex-col",
+        style: {
+          background: "#fff",
+          boxShadow: "0 3px 16px rgba(14,42,71,.08)"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between px-4 sm:px-5 py-3.5",
+        style: {
+          background: team.color
+        }
+      }, /*#__PURE__*/React.createElement("h3", {
+        className: "font-bold text-white text-lg"
+      }, teamName), /*#__PURE__*/React.createElement("span", {
+        className: "text-white text-xs sm:text-sm font-semibold rounded-full px-3 py-1",
+        style: {
+          background: "rgba(255,255,255,.22)"
+        }
+      }, team.students.length, " ", unit)), /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-wrap gap-1.5 px-4 sm:px-5 py-2.5",
+        style: {
+          background: C.cream
+        },
+        dir: "ltr"
+      }, ["STEPS", "SRSI", "HSSP"].map(p => /*#__PURE__*/React.createElement("span", {
+        key: p,
+        className: "font-en text-xs font-bold rounded-full px-2.5 py-1",
+        style: {
+          background: PROGRAM_STYLE[p].bg,
+          color: PROGRAM_STYLE[p].fg
+        }
+      }, p, " × ", counts[p]))), /*#__PURE__*/React.createElement("ul", {
+        className: "px-4 sm:px-5 py-2 grow"
+      }, team.students.map(s => /*#__PURE__*/React.createElement("li", {
+        key: s.name,
+        className: "flex items-center gap-2.5 py-2 text-sm sm:text-[15px]",
+        style: {
+          borderBottom: "1px solid #F1F4F8"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en text-[11px] font-bold rounded-md px-1.5 py-0.5 shrink-0 w-12 text-center",
+        style: {
+          background: PROGRAM_STYLE[s.program].bg,
+          color: PROGRAM_STYLE[s.program].fg
+        }
+      }, s.program), /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en grow text-left",
+        style: {
+          color: C.ink
+        }
+      }, highlight(s.name, query)), s.role && /*#__PURE__*/React.createElement("span", {
+        className: "text-[10px] font-bold rounded-full px-2 py-0.5 shrink-0 text-white",
+        style: {
+          background: s.role === "Captain" ? C.orange : C.navy
+        }
+      }, s.role === "Captain" ? t.captain : t.vice)))), /*#__PURE__*/React.createElement("div", {
+        className: "px-4 sm:px-5 pb-4 pt-1"
+      }, /*#__PURE__*/React.createElement("button", {
+        onClick: copyTeam,
+        className: "w-full inline-flex items-center justify-center gap-2 rounded-xl py-2.5 font-semibold text-sm transition-colors",
+        style: {
+          background: copied ? "#E5F6EC" : C.cream,
+          color: copied ? "#177A3E" : C.navy
+        }
+      }, copied ? /*#__PURE__*/React.createElement(Check, {
+        size: 16
+      }) : /*#__PURE__*/React.createElement(Copy, {
+        size: 16
+      }), " ", copied ? t.copied : t.copyBtn)));
+    }
+    function TeamFinder() {
+      const {
+        t
+      } = useLang();
+      const [tab, setTab] = useState("boys");
+      const [query, setQuery] = useState("");
+      const [program, setProgram] = useState("ALL");
+      const [teamSel, setTeamSel] = useState("all");
+      const source = tab === "boys" ? boysTeams : girlsTeams;
+      useEffect(() => {
+        setTeamSel("all");
+      }, [tab]);
+      const filtered = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return source.filter(tm => teamSel === "all" || tm.id === Number(teamSel)).map(tm => {
+          let students = tm.students;
+          if (program !== "ALL") students = students.filter(s => s.program === program);
+          if (q) students = students.filter(s => s.name.toLowerCase().includes(q));
+          return {
+            ...tm,
+            visible: students
+          };
+        }).filter(tm => tm.visible.length > 0 || !q && program === "ALL");
+      }, [source, query, program, teamSel]);
+      const visStudents = filtered.reduce((s, tm) => s + tm.visible.length, 0);
+      const visPrograms = [...new Set(filtered.flatMap(tm => tm.visible.map(s => s.program)))];
+      const active = query.trim() || program !== "ALL";
+      const tabStyle = (isOn, kind) => ({
+        background: isOn ? kind === "boys" ? C.navy : C.coral : "#fff",
+        color: isOn ? "#fff" : C.navy,
+        border: `2px solid ${isOn ? "transparent" : C.creamDark}`,
+        boxShadow: isOn ? "0 5px 16px rgba(14,42,71,.22)" : "none"
+      });
+      return /*#__PURE__*/React.createElement("section", {
+        id: "finder",
+        className: "py-14 sm:py-20",
+        style: {
+          background: C.cream
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "max-w-6xl mx-auto px-4 sm:px-6"
+      }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("h2", {
+        className: "font-extrabold text-center text-2xl sm:text-4xl",
+        style: {
+          color: C.navy
+        }
+      }, t.finderTitle), /*#__PURE__*/React.createElement("p", {
+        className: "text-center mt-2.5 text-sm sm:text-base",
+        style: {
+          color: C.inkSoft
+        }
+      }, t.finderSub)), /*#__PURE__*/React.createElement(Reveal, {
+        delay: 80
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-2 gap-3 max-w-md mx-auto mt-7",
+        role: "tablist",
+        "aria-label": t.tabsLabel
+      }, /*#__PURE__*/React.createElement("button", {
+        role: "tab",
+        "aria-selected": tab === "boys",
+        onClick: () => setTab("boys"),
+        className: "rounded-2xl py-3.5 font-bold text-base sm:text-lg transition-all",
+        style: tabStyle(tab === "boys", "boys")
+      }, t.tabBoys), /*#__PURE__*/React.createElement("button", {
+        role: "tab",
+        "aria-selected": tab === "girls",
+        onClick: () => setTab("girls"),
+        className: "rounded-2xl py-3.5 font-bold text-base sm:text-lg transition-all",
+        style: tabStyle(tab === "girls", "girls")
+      }, t.tabGirls))), /*#__PURE__*/React.createElement(Reveal, {
+        delay: 140
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto mt-5"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "relative grow"
+      }, /*#__PURE__*/React.createElement(Search, {
+        size: 18,
+        className: "absolute top-1/2 -translate-y-1/2 pointer-events-none",
+        style: {
+          insetInlineStart: 16,
+          color: C.inkSoft
+        }
+      }), /*#__PURE__*/React.createElement("input", {
+        type: "search",
+        value: query,
+        onChange: e => setQuery(e.target.value),
+        placeholder: tab === "boys" ? t.searchBoys : t.searchGirls,
+        "aria-label": t.searchLabel,
+        className: "w-full rounded-2xl py-3.5 text-sm sm:text-base",
+        style: {
+          background: "#fff",
+          border: `2px solid ${C.creamDark}`,
+          paddingInlineStart: 44,
+          paddingInlineEnd: 16,
+          color: C.ink
+        }
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "relative"
+      }, /*#__PURE__*/React.createElement("select", {
+        value: teamSel,
+        onChange: e => setTeamSel(e.target.value),
+        "aria-label": t.teamSelLabel,
+        className: "w-full sm:w-auto appearance-none rounded-2xl py-3.5 font-semibold text-sm sm:text-base cursor-pointer",
+        style: {
+          background: "#fff",
+          border: `2px solid ${C.creamDark}`,
+          color: C.navy,
+          paddingInlineStart: 18,
+          paddingInlineEnd: 42
+        }
+      }, /*#__PURE__*/React.createElement("option", {
+        value: "all"
+      }, t.allTeams), source.map(tm => /*#__PURE__*/React.createElement("option", {
+        key: tm.id,
+        value: tm.id
+      }, t.teamWord, " ", tm.id))), /*#__PURE__*/React.createElement(ChevronDown, {
+        size: 17,
+        className: "absolute top-1/2 -translate-y-1/2 pointer-events-none",
+        style: {
+          insetInlineEnd: 14,
+          color: C.inkSoft
+        }
+      }))), /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-wrap justify-center gap-2 mt-4",
+        dir: "ltr"
+      }, ["ALL", "STEPS", "SRSI", "HSSP"].map(p => /*#__PURE__*/React.createElement("button", {
+        key: p,
+        onClick: () => setProgram(p),
+        className: "rounded-full px-4 py-2 text-sm font-bold transition-all font-en",
+        style: {
+          background: program === p ? C.teal : "#fff",
+          color: program === p ? "#fff" : C.inkSoft,
+          border: `2px solid ${program === p ? C.teal : C.creamDark}`
+        }
+      }, p === "ALL" ? t.allPrograms : p)))), /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-wrap justify-center gap-x-5 gap-y-1 mt-6 text-xs sm:text-sm font-semibold",
+        style: {
+          color: C.inkSoft
+        }
+      }, /*#__PURE__*/React.createElement("span", null, t.sumTeams, ": ", /*#__PURE__*/React.createElement("b", {
+        style: {
+          color: C.navy
+        }
+      }, filtered.length)), /*#__PURE__*/React.createElement("span", null, tab === "boys" ? t.sumBoys : t.sumGirls, ": ", /*#__PURE__*/React.createElement("b", {
+        style: {
+          color: C.navy
+        }
+      }, visStudents)), /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en"
+      }, visPrograms.join(" · ") || "—")), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
+        className: "text-center mt-12 rounded-3xl py-12 px-6 max-w-md mx-auto",
+        style: {
+          background: "#fff"
+        }
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "font-bold text-lg",
+        style: {
+          color: C.navy
+        }
+      }, t.noResults), /*#__PURE__*/React.createElement("p", {
+        className: "mt-2 text-sm",
+        style: {
+          color: C.inkSoft
+        }
+      }, t.noResultsHint)) : /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 mt-8"
+      }, filtered.map(tm => /*#__PURE__*/React.createElement(TeamCard, {
+        key: tab + tm.id,
+        team: active ? {
+          ...tm,
+          students: tm.visible
+        } : tm,
+        tab: tab,
+        query: query.trim()
+      })))));
+    }
+
+    /* ============================================================
+       TIMELINE — clean vertical on mobile, horizontal on desktop
+    ============================================================ */
+    const TL_META = [{
+      time: "3:00 PM",
+      icon: Bus,
+      color: C.coral
+    }, {
+      time: "5:00 PM",
+      icon: Flag,
+      color: C.teal
+    }, {
+      time: "8:00 PM",
+      icon: AlarmClock,
+      color: C.orange
+    }, {
+      time: "8:00 PM",
+      icon: UtensilsCrossed,
+      color: "#8B5CF6",
+      after: true
+    }];
+    function Timeline() {
+      const {
+        t
+      } = useLang();
+      return /*#__PURE__*/React.createElement("section", {
+        id: "schedule",
+        className: "py-14 sm:py-20",
+        style: {
+          background: C.navy
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "max-w-6xl mx-auto px-4 sm:px-6"
+      }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("h2", {
+        className: "font-extrabold text-center text-2xl sm:text-4xl text-white"
+      }, t.scheduleTitle), /*#__PURE__*/React.createElement("div", {
+        className: "w-14 h-1.5 rounded-full mx-auto mt-3",
+        style: {
+          background: C.aqua
+        }
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "md:hidden relative mt-10 max-w-sm mx-auto"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "absolute top-6 bottom-6 w-0.5",
+        style: {
+          background: "rgba(255,255,255,.18)",
+          insetInlineStart: 27
+        },
+        "aria-hidden": "true"
+      }), /*#__PURE__*/React.createElement("div", {
+        className: "space-y-7"
+      }, TL_META.map((m, i) => /*#__PURE__*/React.createElement(Reveal, {
+        key: i,
+        delay: i * 80
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-start gap-4"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shrink-0",
+        style: {
+          background: m.color,
+          color: "#fff",
+          boxShadow: "0 6px 16px rgba(0,0,0,.25)"
+        }
+      }, /*#__PURE__*/React.createElement(m.icon, {
+        size: 24
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "pt-1 text-start"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "font-extrabold text-xl text-white"
+      }, m.after && /*#__PURE__*/React.createElement("span", {
+        className: "me-1.5"
+      }, t.after), /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en inline-block"
+      }, m.time)), /*#__PURE__*/React.createElement("p", {
+        className: "mt-0.5 text-sm leading-relaxed",
+        style: {
+          color: "#B9C7D8"
+        }
+      }, t.tl[i]))))))), /*#__PURE__*/React.createElement("div", {
+        className: "hidden md:block relative mt-14"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "absolute top-7 h-0.5",
+        style: {
+          background: "rgba(255,255,255,.18)",
+          insetInlineStart: "12.5%",
+          insetInlineEnd: "12.5%"
+        },
+        "aria-hidden": "true"
+      }), /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-4 gap-4"
+      }, TL_META.map((m, i) => /*#__PURE__*/React.createElement(Reveal, {
+        key: i,
+        delay: i * 90
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-col items-center text-center"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center",
+        style: {
+          background: m.color,
+          color: "#fff",
+          boxShadow: "0 6px 16px rgba(0,0,0,.25)"
+        }
+      }, /*#__PURE__*/React.createElement(m.icon, {
+        size: 24
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "mt-4 font-extrabold text-2xl text-white"
+      }, m.after && /*#__PURE__*/React.createElement("span", {
+        className: "me-1.5"
+      }, t.after), /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en inline-block"
+      }, m.time)), /*#__PURE__*/React.createElement("p", {
+        className: "mt-1 text-sm sm:text-base",
+        style: {
+          color: "#B9C7D8",
+          maxWidth: 210
+        }
+      }, t.tl[i]))))))));
+    }
+
+    /* ============================================================
+       IMPORTANT INFO (checklist) — includes transport anchor
+    ============================================================ */
+    const CHECK_ICONS = [Clock, Shirt, Sparkles, ClipboardList, Users];
+    function ImportantInfo() {
+      const {
+        t
+      } = useLang();
+      return /*#__PURE__*/React.createElement("section", {
+        id: "transport",
+        className: "py-14 sm:py-20",
+        style: {
+          background: "#fff"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "max-w-3xl mx-auto px-4 sm:px-6"
+      }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("h2", {
+        className: "font-extrabold text-center text-2xl sm:text-4xl",
+        style: {
+          color: C.navy
+        }
+      }, t.impTitle), /*#__PURE__*/React.createElement("div", {
+        className: "w-14 h-1.5 rounded-full mx-auto mt-3",
+        style: {
+          background: C.coral
+        }
+      })), /*#__PURE__*/React.createElement("ul", {
+        className: "mt-9 space-y-2.5"
+      }, t.checks.map((text, i) => {
+        const Icon = CHECK_ICONS[i];
+        return /*#__PURE__*/React.createElement(Reveal, {
+          key: text,
+          delay: i * 70
+        }, /*#__PURE__*/React.createElement("li", {
+          className: "flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-3.5",
+          style: {
+            background: C.cream
+          }
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+          style: {
+            background: "#fff",
+            color: C.navy
+          }
+        }, /*#__PURE__*/React.createElement(Icon, {
+          size: 18
+        })), /*#__PURE__*/React.createElement("p", {
+          className: "font-semibold text-sm sm:text-base grow",
+          style: {
+            color: C.ink
+          }
+        }, text), /*#__PURE__*/React.createElement(Check, {
+          size: 19,
+          className: "shrink-0",
+          style: {
+            color: C.orange
+          }
+        })));
+      }), /*#__PURE__*/React.createElement(Reveal, {
+        delay: t.checks.length * 70
+      }, /*#__PURE__*/React.createElement("li", {
+        className: "flex items-center gap-3.5 rounded-2xl px-4 sm:px-5 py-3.5",
+        style: {
+          background: C.tealSoft
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+        style: {
+          background: "#fff",
+          color: C.teal
+        }
+      }, /*#__PURE__*/React.createElement(Bus, {
+        size: 18
+      })), /*#__PURE__*/React.createElement("p", {
+        className: "font-semibold text-sm sm:text-base grow",
+        style: {
+          color: C.ink
+        }
+      }, t.busCheckA, " ", /*#__PURE__*/React.createElement("span", {
+        dir: "ltr",
+        className: "font-en font-bold",
+        style: {
+          color: C.teal
+        }
+      }, "3:00 PM")), /*#__PURE__*/React.createElement(Check, {
+        size: 19,
+        className: "shrink-0",
+        style: {
+          color: C.teal
+        }
+      }))))));
+    }
+
+    /* ============================================================
+       FOOTER + STICKY MOBILE CTA
+    ============================================================ */
+    function Footer() {
+      const {
+        t
+      } = useLang();
+      return /*#__PURE__*/React.createElement("footer", {
+        className: "py-12 text-center px-4",
+        style: {
+          background: C.navyDeep
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        dir: "ltr",
+        className: "font-en font-extrabold text-xl sm:text-2xl text-white"
+      }, "Wacky Olympics ", /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: C.orange
+        }
+      }, "2026")), /*#__PURE__*/React.createElement("div", {
+        dir: "ltr",
+        className: "font-en text-sm mt-2 font-semibold",
+        style: {
+          color: C.aqua
+        }
+      }, "STEPS | SRSI | HSSP"), /*#__PURE__*/React.createElement("div", {
+        dir: "ltr",
+        className: "font-en text-xs mt-1 tracking-widest",
+        style: {
+          color: "#5A7089"
+        }
+      }, "KAUST"), /*#__PURE__*/React.createElement("p", {
+        className: "mt-5 text-sm sm:text-base font-semibold",
+        style: {
+          color: "#C4D2E2"
+        }
+      }, t.footerLine));
+    }
+    function StickyCTA() {
+      const {
+        t
+      } = useLang();
+      const [show, setShow] = useState(true);
+      useEffect(() => {
+        const finder = document.getElementById("finder");
+        if (!finder) return;
+        const obs = new IntersectionObserver(([e]) => setShow(!e.isIntersecting), {
+          threshold: 0.08
+        });
+        obs.observe(finder);
+        return () => obs.disconnect();
+      }, []);
+      if (!show) return null;
+      return /*#__PURE__*/React.createElement("button", {
+        onClick: () => document.getElementById("finder")?.scrollIntoView({
+          behavior: "smooth"
+        }),
+        className: "md:hidden fixed bottom-4 inset-x-4 z-40 inline-flex items-center justify-center gap-2 rounded-full py-3.5 font-bold text-base",
+        style: {
+          background: C.orange,
+          color: "#fff",
+          boxShadow: "0 8px 22px rgba(242,128,59,.45)"
+        }
+      }, /*#__PURE__*/React.createElement(Search, {
+        size: 18
+      }), " ", t.ctaFind);
+    }
+
+    /* ============================================================
+       APP
+    ============================================================ */
+    function App() {
+      const [lang, setLang] = useState("ar");
+      const t = T[lang];
+      return /*#__PURE__*/React.createElement(LangCtx.Provider, {
+        value: {
+          lang,
+          t,
+          setLang
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        dir: t.dir,
+        className: "font-ar min-h-screen",
+        style: {
+          background: C.cream,
+          color: C.ink,
+          overflowX: "hidden"
+        }
+      }, /*#__PURE__*/React.createElement(GlobalStyle, null), /*#__PURE__*/React.createElement(Nav, null), /*#__PURE__*/React.createElement("main", null, /*#__PURE__*/React.createElement(Hero, null), /*#__PURE__*/React.createElement(Highlights, null), /*#__PURE__*/React.createElement(TeamFinder, null), /*#__PURE__*/React.createElement(Timeline, null), /*#__PURE__*/React.createElement(ImportantInfo, null)), /*#__PURE__*/React.createElement(Footer, null), /*#__PURE__*/React.createElement(StickyCTA, null)));
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+    var l=document.getElementById('loading'); if(l) l.remove();
+  } catch(e) {
+    document.getElementById('loading').textContent = 'حدث خطأ أثناء التشغيل: ' + e.message;
+    console.error(e);
+  }
+});
+</script>
+</body>
+</html>
